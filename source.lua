@@ -192,10 +192,23 @@ function VesperaGUI:CreateSlider(SliderName, MinValue, MaxValue, ParentTab, Call
 
     -- Add Slider Functionality
     local SliderValue = MinValue
-    SliderBar.MouseMoved:Connect(function(_, y)
-        local pos = math.clamp(y / Slider.AbsoluteSize.Y, 0, 1)
-        SliderValue = math.floor(MinValue + (MaxValue - MinValue) * pos)
-        Callback(SliderValue)
+    SliderBar.MouseButton1Down:Connect(function()
+        local function updateSlider()
+            local mousePos = UserInputService:GetMouseLocation().X
+            local pos = math.clamp((mousePos - Slider.AbsolutePosition.X) / Slider.AbsoluteSize.X, 0, 1)
+            SliderValue = math.floor(MinValue + (MaxValue - MinValue) * pos)
+            Callback(SliderValue)
+        end
+
+        -- Update the slider while the mouse is held down
+        local inputEndedConnection
+        inputEndedConnection = UserInputService.InputEnded:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                inputEndedConnection:Disconnect()
+            end
+        end)
+
+        updateSlider()
     end)
 
     return Slider
