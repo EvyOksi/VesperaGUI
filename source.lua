@@ -17,6 +17,45 @@ local OptimizeForMobile = screenWidth < 800  -- Detect mobile screen width
 local VesperaGUI = {}
 VesperaGUI.__index = VesperaGUI
 
+-- Default Theme (Dark Mode)
+local theme = {
+    BackgroundColor = Color3.fromRGB(40, 40, 40),
+    TextColor = Color3.fromRGB(255, 255, 255),
+    ButtonBackgroundColor = Color3.fromRGB(50, 50, 50),
+    ButtonTextColor = Color3.fromRGB(255, 255, 255),
+    TextInputBackgroundColor = Color3.fromRGB(60, 60, 60),
+    TextInputTextColor = Color3.fromRGB(255, 255, 255),
+}
+
+-- Notification System
+local function createNotification(message, duration)
+    local notification = Instance.new("Frame")
+    notification.Size = UDim2.new(0.5, 0, 0.1, 0)
+    notification.Position = UDim2.new(0.25, 0, 0.9, 0)
+    notification.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    notification.BackgroundTransparency = 0.5
+    notification.Parent = PlayerGui
+
+    local notificationText = Instance.new("TextLabel")
+    notificationText.Text = message
+    notificationText.Size = UDim2.new(1, 0, 1, 0)
+    notificationText.BackgroundTransparency = 1
+    notificationText.TextColor3 = Color3.fromRGB(255, 255, 255)
+    notificationText.TextSize = 18
+    notificationText.Font = Enum.Font.Gotham
+    notificationText.Parent = notification
+
+    -- Fade out and remove notification
+    TweenService:Create(notification, TweenInfo.new(duration, Enum.EasingStyle.Linear, Enum.EasingDirection.Out), {Transparency = 1}):Play()
+    wait(duration)
+    notification:Destroy()
+end
+
+-- Function to Change Theme (Light/Dark)
+function VesperaGUI:SetTheme(newTheme)
+    theme = newTheme
+end
+
 -- Function to Create a Window with Drag and Resize
 function VesperaGUI:CreateWindow(WindowDetails)
     local Window = Instance.new("ScreenGui")
@@ -27,7 +66,7 @@ function VesperaGUI:CreateWindow(WindowDetails)
     local MainFrame = Instance.new("Frame")
     MainFrame.Size = OptimizeForMobile and UDim2.new(0.7, 0, 0.7, 0) or UDim2.new(0.8, 0, 0.8, 0)
     MainFrame.Position = UDim2.new(0.15, 0, 0.15, 0)
-    MainFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    MainFrame.BackgroundColor3 = theme.BackgroundColor
     MainFrame.Parent = Window
 
     -- Draggable Functionality
@@ -59,8 +98,8 @@ function VesperaGUI:CreateWindow(WindowDetails)
     local Header = Instance.new("TextLabel")
     Header.Text = WindowDetails.LoadingTitle
     Header.Size = UDim2.new(1, 0, 0.1, 0)
-    Header.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-    Header.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Header.BackgroundColor3 = theme.BackgroundColor
+    Header.TextColor3 = theme.TextColor
     Header.Font = Enum.Font.GothamBold
     Header.TextSize = 24
     Header.Parent = MainFrame
@@ -103,7 +142,7 @@ function VesperaGUI:CreateTab(TabName, IconId)
     TabLabel.Text = TabName
     TabLabel.Size = UDim2.new(1, 0, 0.1, 0)
     TabLabel.BackgroundTransparency = 1
-    TabLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    TabLabel.TextColor3 = theme.TextColor
     TabLabel.Font = Enum.Font.Gotham
     TabLabel.TextSize = 18
     TabLabel.Parent = Tab
@@ -137,8 +176,8 @@ function VesperaGUI:CreateButton(ButtonName, ParentTab, Callback)
     Button.Text = ButtonName
     Button.Size = UDim2.new(0.8, 0, 0.1, 0)
     Button.Position = UDim2.new(0.1, 0, 0.2, 0)
-    Button.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-    Button.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Button.BackgroundColor3 = theme.ButtonBackgroundColor
+    Button.TextColor3 = theme.ButtonTextColor
     Button.Font = Enum.Font.Gotham
     Button.TextSize = 18
     Button.Parent = ParentTab
@@ -155,7 +194,7 @@ function VesperaGUI:CreateSlider(SliderName, MinValue, MaxValue, ParentTab, Call
     local Slider = Instance.new("Frame")
     Slider.Size = UDim2.new(0.8, 0, 0.1, 0)
     Slider.Position = UDim2.new(0.1, 0, 0.2, 0)
-    Slider.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    Slider.BackgroundColor3 = theme.ButtonBackgroundColor
     Slider.Parent = ParentTab
 
     local SliderBar = Instance.new("TextButton")
@@ -186,41 +225,78 @@ function VesperaGUI:CreateSlider(SliderName, MinValue, MaxValue, ParentTab, Call
     return Slider
 end
 
--- Function to Send Notifications
-function VesperaGUI:SendNotification(Title, Content)
-    local Notification = Instance.new("Frame")
-    Notification.Size = UDim2.new(0.8, 0, 0.1, 0)
-    Notification.Position = UDim2.new(0.1, 0, 0.7, 0)
-    Notification.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-    Notification.Parent = PlayerGui
+-- Function to Create a Text Input Field
+function VesperaGUI:CreateTextInput(InputName, PlaceholderText, ParentTab, Callback)
+    local TextInput = Instance.new("TextBox")
+    TextInput.Size = UDim2.new(0.8, 0, 0.1, 0)
+    TextInput.Position = UDim2.new(0.1, 0, 0.2, 0)
+    TextInput.BackgroundColor3 = theme.TextInputBackgroundColor
+    TextInput.TextColor3 = theme.TextInputTextColor
+    TextInput.PlaceholderText = PlaceholderText
+    TextInput.Font = Enum.Font.Gotham
+    TextInput.TextSize = 18
+    TextInput.Parent = ParentTab
 
-    local NotificationText = Instance.new("TextLabel")
-    NotificationText.Text = Title .. ": " .. Content
-    NotificationText.Size = UDim2.new(1, 0, 1, 0)
-    NotificationText.TextColor3 = Color3.fromRGB(255, 255, 255)
-    NotificationText.Font = Enum.Font.Gotham
-    NotificationText.TextSize = 14
-    NotificationText.Parent = Notification
+    TextInput.FocusLost:Connect(function()
+        Callback(TextInput.Text)
+    end)
 
-    -- Tween for notification pop-in effect
-    local Tween = TweenService:Create(Notification, TweenInfo.new(0.5), {Position = UDim2.new(0.1, 0, 0.6, 0)})
-    Tween:Play()
+    return TextInput
 end
 
--- Button to Hide/Show the GUI
-local HideShowButton = Instance.new("TextButton")
-HideShowButton.Size = UDim2.new(0, 200, 0, 50)
-HideShowButton.Position = UDim2.new(0.5, 0, 0.9, 0)  -- Position outside of the window
-HideShowButton.Text = "Hide/Show GUI"
-HideShowButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
-HideShowButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-HideShowButton.Font = Enum.Font.Gotham
-HideShowButton.TextSize = 20
-HideShowButton.Parent = PlayerGui
+-- Function to Create a Settings Panel
+function VesperaGUI:CreateSettingsPanel()
+    local SettingsPanel = Instance.new("Frame")
+    SettingsPanel.Size = UDim2.new(0.6, 0, 0.8, 0)
+    SettingsPanel.Position = UDim2.new(0.2, 0, 0.1, 0)
+    SettingsPanel.BackgroundColor3 = theme.BackgroundColor
+    SettingsPanel.Parent = PlayerGui
 
-HideShowButton.MouseButton1Click:Connect(function()
-    Window.Visible = not Window.Visible
-end)
+    -- Add Title
+    local Title = Instance.new("TextLabel")
+    Title.Text = "Settings"
+    Title.Size = UDim2.new(1, 0, 0.1, 0)
+    Title.BackgroundColor3 = theme.BackgroundColor
+    Title.TextColor3 = theme.TextColor
+    Title.Font = Enum.Font.GothamBold
+    Title.TextSize = 24
+    Title.Parent = SettingsPanel
+
+    -- Add Theme Toggle Button
+    local ToggleThemeButton = Instance.new("TextButton")
+    ToggleThemeButton.Text = "Switch Theme"
+    ToggleThemeButton.Size = UDim2.new(0.8, 0, 0.1, 0)
+    ToggleThemeButton.Position = UDim2.new(0.1, 0, 0.2, 0)
+    ToggleThemeButton.BackgroundColor3 = theme.ButtonBackgroundColor
+    ToggleThemeButton.TextColor3 = theme.ButtonTextColor
+    ToggleThemeButton.Font = Enum.Font.Gotham
+    ToggleThemeButton.TextSize = 18
+    ToggleThemeButton.Parent = SettingsPanel
+
+    ToggleThemeButton.MouseButton1Click:Connect(function()
+        if theme == theme then
+            VesperaGUI:SetTheme({
+                BackgroundColor = Color3.fromRGB(255, 255, 255),
+                TextColor = Color3.fromRGB(0, 0, 0),
+                ButtonBackgroundColor = Color3.fromRGB(200, 200, 200),
+                ButtonTextColor = Color3.fromRGB(0, 0, 0),
+                TextInputBackgroundColor = Color3.fromRGB(240, 240, 240),
+                TextInputTextColor = Color3.fromRGB(0, 0, 0),
+            })
+        else
+            VesperaGUI:SetTheme({
+                BackgroundColor = Color3.fromRGB(40, 40, 40),
+                TextColor = Color3.fromRGB(255, 255, 255),
+                ButtonBackgroundColor = Color3.fromRGB(50, 50, 50),
+                ButtonTextColor = Color3.fromRGB(255, 255, 255),
+                TextInputBackgroundColor = Color3.fromRGB(60, 60, 60),
+                TextInputTextColor = Color3.fromRGB(255, 255, 255),
+            })
+        end
+    end)
+
+    return SettingsPanel
+end
 
 -- Return VesperaGUI for external use
 return VesperaGUI
