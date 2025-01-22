@@ -25,8 +25,8 @@ function VesperaGUI:CreateWindow(WindowDetails)
 
     -- Window Setup
     local MainFrame = Instance.new("Frame")
-    MainFrame.Size = UDim2.new(0.8, 0, 0.8, 0)
-    MainFrame.Position = UDim2.new(0.1, 0, 0.1, 0)
+    MainFrame.Size = OptimizeForMobile and UDim2.new(0.7, 0, 0.7, 0) or UDim2.new(0.8, 0, 0.8, 0)
+    MainFrame.Position = UDim2.new(0.15, 0, 0.15, 0)
     MainFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
     MainFrame.Parent = Window
 
@@ -108,6 +108,26 @@ function VesperaGUI:CreateTab(TabName, IconId)
     TabLabel.TextSize = 18
     TabLabel.Parent = Tab
 
+    -- Tab Switching Logic
+    local TabPages = {}  -- To hold all the tabs' content
+    local ActiveTab
+    local function switchTab(selectedTab)
+        -- Hide the currently active tab's content
+        if ActiveTab then
+            ActiveTab.Visible = false
+        end
+        -- Show the selected tab's content
+        ActiveTab = TabPages[selectedTab]
+        ActiveTab.Visible = true
+    end
+
+    TabLabel.MouseButton1Click:Connect(function()
+        switchTab(TabName)
+    end)
+
+    -- Store the tab content
+    TabPages[TabName] = Tab
+
     return Tab
 end
 
@@ -146,11 +166,17 @@ function VesperaGUI:CreateSlider(SliderName, MinValue, MaxValue, ParentTab, Call
 
     -- Add Slider Functionality
     local SliderValue = MinValue
+    local SliderIndicator = Instance.new("Frame")
+    SliderIndicator.Size = UDim2.new(0, 0, 1, 0)
+    SliderIndicator.BackgroundColor3 = Color3.fromRGB(255, 100, 100)
+    SliderIndicator.Parent = SliderBar
+
     SliderBar.MouseButton1Down:Connect(function()
         local function updateSlider()
             local mousePos = UserInputService:GetMouseLocation().X
             local pos = math.clamp((mousePos - Slider.AbsolutePosition.X) / Slider.AbsoluteSize.X, 0, 1)
             SliderValue = math.floor(MinValue + (MaxValue - MinValue) * pos)
+            SliderIndicator.Size = UDim2.new(pos, 0, 1, 0)
             Callback(SliderValue)
         end
 
@@ -180,6 +206,21 @@ function VesperaGUI:SendNotification(Title, Content)
     local Tween = TweenService:Create(Notification, TweenInfo.new(0.5), {Position = UDim2.new(0.1, 0, 0.6, 0)})
     Tween:Play()
 end
+
+-- Button to Hide/Show the GUI
+local HideShowButton = Instance.new("TextButton")
+HideShowButton.Size = UDim2.new(0, 200, 0, 50)
+HideShowButton.Position = UDim2.new(0.5, 0, 0.9, 0)  -- Position outside of the window
+HideShowButton.Text = "Hide/Show GUI"
+HideShowButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+HideShowButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+HideShowButton.Font = Enum.Font.Gotham
+HideShowButton.TextSize = 20
+HideShowButton.Parent = PlayerGui
+
+HideShowButton.MouseButton1Click:Connect(function()
+    Window.Visible = not Window.Visible
+end)
 
 -- Return VesperaGUI for external use
 return VesperaGUI
