@@ -30,7 +30,7 @@ function VesperaGUI:CreateWindow(WindowDetails)
     MainFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
     MainFrame.Parent = Window
 
-    -- Drag functionality
+    -- Draggable Functionality
     local dragging = false
     local dragInput, mousePos, framePos
 
@@ -80,6 +80,18 @@ function VesperaGUI:CreateWindow(WindowDetails)
     if OptimizeForMobile then
         MainFrame.Size = UDim2.new(1, 0, 1, 0)
     end
+
+    -- Toggle Window Visibility
+    local isWindowVisible = true
+    Header.MouseButton1Click:Connect(function()
+        if isWindowVisible then
+            isWindowVisible = false
+            MainFrame.Visible = false
+        else
+            isWindowVisible = true
+            MainFrame.Visible = true
+        end
+    end)
 
     return Window
 end
